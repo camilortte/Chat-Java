@@ -10,6 +10,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -28,6 +29,7 @@ public class Cliente {
     private String host, nickname;
     private boolean conectado;
     private VentanaCliente ventana;
+    ObjectInputStream objectoEntrante;
 
     public Cliente(int puerto, String host, String nickname, VentanaCliente ventana) {
         this.host = host;
@@ -42,14 +44,24 @@ public class Cliente {
             conexion = new Socket(host, puerto);
             salida = new ObjectOutputStream(conexion.getOutputStream());
             salida.writeObject(nickname);
-            entrada = new ObjectInputStream(conexion.getInputStream());
+            entrada = new ObjectInputStream(conexion.getInputStream());            
             new Thread() {
                 public void run() {
                     conectado=true;
                     flujoEntrada();
                 }
             ;
-        } .start();     
+        } .start();  
+            /*----No funcional----*/
+            new Thread() {
+                public void run() {
+                    conectado=true;
+                    //flujoUsuarios();
+                }
+            ;
+            } .start(); 
+            /*--------------------*/
+            
         } catch (UnknownHostException ex) {
         } catch (IOException ex) {
         }
@@ -73,7 +85,7 @@ public class Cliente {
                 //entra=(String) entrada.readObject();
                 //this.ventana.setPanelText(entra, Color.cyan);
                 //Leemos el mensaje
-                entra=(String) entrada.readObject();
+                entra=(String) entrada.readUTF();
                 this.ventana.setPanelText(entra+"\n", Color.black);
             }
             entrada.close();
@@ -82,8 +94,29 @@ public class Cliente {
         } catch (IOException ex) {
            // Logger.getLogger(VentanaCliente.class.getName()).log(Level.SEVERE, null, ex);
             
-        } catch (ClassNotFoundException ex) {
         } 
+    }
+    
+    public void flujoUsuarios(){
+        try {
+            objectoEntrante = new ObjectInputStream(conexion.getInputStream());
+        } catch (IOException ex) {
+            Logger.getLogger(Cliente.class.getName()).log(Level.SEVERE, null, ex);
+        }
+            
+        while(conectado){            
+            try {
+                System.out.println("Ewsperoandpo el array");
+                ArrayList<String> usuarios=(ArrayList<String>) objectoEntrante.readObject();
+                ventana.setUsuarios(usuarios);
+                System.out.println("Listo ela");
+                System.out.println(usuarios.toString());
+            } catch (IOException ex) {
+                Logger.getLogger(Cliente.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (ClassNotFoundException ex) {
+                Logger.getLogger(Cliente.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
     }
     
     public void flujoSalida(String mensaje){
@@ -92,7 +125,7 @@ public class Cliente {
             //salida.writeObject(nickname);
             //salida.flush();
             //Enviamos mensaje
-            salida.writeObject(mensaje);
+            salida.writeUTF(mensaje);
             salida.flush();
         } catch (IOException ex) {
             //Logger.getLogger(VentanaCliente.class.getName()).log(Level.SEVERE, null, ex);

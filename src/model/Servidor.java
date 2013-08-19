@@ -97,7 +97,7 @@ public class Servidor {
         
        public void writte(String mensaje){
             try {
-                salida.writeObject(mensaje);
+                salida.writeUTF(mensaje);
                 salida.flush();
             } catch (IOException ex) {
                 Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
@@ -110,9 +110,10 @@ public class Servidor {
                 this.nickname=(String)entrada.readObject();
                 //Actualizamos usuarios
                 usuarios.add(nickname);
-                ventana.setUsuarios(usuarios);
+                ventana.setUsuarios(usuarios);                
                 //Informamos de la conexion                
                 salida=new ObjectOutputStream(conexion.getOutputStream());  
+                salida.writeObject(usuarios);
                 ventana.setPanelText("Conectado con: " +  this.nickname+ " desde "+conexion.getInetAddress().getHostAddress()+"\n", Color.blue);
                 flujoSalida("Conectado con: " +  this.nickname+ " desde "+conexion.getInetAddress().getHostAddress()+"\n");
                 System.out.println("Conectado con: " + this.nickname+ " desde "+conexion.getInetAddress().getHostAddress()+"\n");
@@ -121,7 +122,7 @@ public class Servidor {
                 //entrada = new ObjectInputStream(conexion.getInputStream());
                 while (!stop) {
                         //Obtenemos el mensaje y lo imprimimos en pantalla                    
-                        String lectura = (String) entrada.readObject();
+                        String lectura = (String) entrada.readUTF();
                         //System.out.println("lecutura: " + lectura);
                         ventana.setPanelText(this.nickname+"<<",Color.darkGray);
                         ventana.setPanelText(lectura+"\n",Color.black);
@@ -137,6 +138,11 @@ public class Servidor {
                 //Actualizamos usuarios                
                 usuarios.remove(nickname);
                 ventana.setUsuarios(usuarios);
+                try {
+                    salida.writeObject(usuarios);
+                } catch (IOException ex1) {
+                    Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex1);
+                }
                 ventana.setPanelText("Cerrando  conexion con: " + this.nickname + " desde "+conexion.getInetAddress().getHostAddress()+"\n", Color.red);
                 flujoSalida("Cerrando  conexion con: " + this.nickname + " desde "+conexion.getInetAddress().getHostAddress()+"\n");
                 System.out.println("Conectado conexion con: " + this.nickname + " desde "+conexion.getInetAddress().getHostAddress()+"\n");
