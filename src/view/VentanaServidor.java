@@ -4,8 +4,11 @@
  */
 package view;
 
+import java.awt.Color;
 import java.io.IOException;
-import java.net.SocketException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import model.Servidor;
@@ -36,17 +39,18 @@ public class VentanaServidor extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jList_usuariosConectados = new javax.swing.JList();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        jTextPane_entrada = new javax.swing.JTextPane();
         jTextField_salida = new javax.swing.JTextField();
         jButton_enviar = new javax.swing.JButton();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        textPanelEdit_texto = new view.TextPanelEdit();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
         jMenuItem2 = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
-        jMenuItem4 = new javax.swing.JMenuItem();
-        jMenuItem3 = new javax.swing.JMenuItem();
+        jMenuItem_conectar = new javax.swing.JMenuItem();
+        jMenuItem5 = new javax.swing.JMenuItem();
+        jMenuItem_desconectar = new javax.swing.JMenuItem();
         jMenu3 = new javax.swing.JMenu();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -62,8 +66,8 @@ public class VentanaServidor extends javax.swing.JFrame {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 106, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -73,7 +77,16 @@ public class VentanaServidor extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
-        jScrollPane2.setViewportView(jTextPane_entrada);
+        jTextField_salida.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextField_salidaActionPerformed(evt);
+            }
+        });
+        jTextField_salida.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                jTextField_salidaKeyReleased(evt);
+            }
+        });
 
         jButton_enviar.setText("Enviar");
         jButton_enviar.addActionListener(new java.awt.event.ActionListener() {
@@ -81,6 +94,9 @@ public class VentanaServidor extends javax.swing.JFrame {
                 jButton_enviarActionPerformed(evt);
             }
         });
+
+        textPanelEdit_texto.setFont(new java.awt.Font("Liberation Mono", 1, 14)); // NOI18N
+        jScrollPane3.setViewportView(textPanelEdit_texto);
 
         jMenu1.setText("Archivo");
 
@@ -99,23 +115,31 @@ public class VentanaServidor extends javax.swing.JFrame {
 
         jMenu2.setText("Coneccion");
 
-        jMenuItem4.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_N, java.awt.event.InputEvent.CTRL_MASK));
-        jMenuItem4.setText("Conectar");
-        jMenuItem4.addActionListener(new java.awt.event.ActionListener() {
+        jMenuItem_conectar.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_N, java.awt.event.InputEvent.CTRL_MASK));
+        jMenuItem_conectar.setText("Conectar");
+        jMenuItem_conectar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem4ActionPerformed(evt);
+                jMenuItem_conectarActionPerformed(evt);
             }
         });
-        jMenu2.add(jMenuItem4);
+        jMenu2.add(jMenuItem_conectar);
 
-        jMenuItem3.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_C, java.awt.event.InputEvent.CTRL_MASK));
-        jMenuItem3.setText("Cerrar Conexiones");
-        jMenuItem3.addActionListener(new java.awt.event.ActionListener() {
+        jMenuItem5.setText("Cambiar Configuracion");
+        jMenuItem5.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem3ActionPerformed(evt);
+                jMenuItem5ActionPerformed(evt);
             }
         });
-        jMenu2.add(jMenuItem3);
+        jMenu2.add(jMenuItem5);
+
+        jMenuItem_desconectar.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_C, java.awt.event.InputEvent.CTRL_MASK));
+        jMenuItem_desconectar.setText("Cerrar Conexiones");
+        jMenuItem_desconectar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem_desconectarActionPerformed(evt);
+            }
+        });
+        jMenu2.add(jMenuItem_desconectar);
 
         jMenuBar1.add(jMenu2);
 
@@ -131,31 +155,29 @@ public class VentanaServidor extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(4, 4, 4)
-                        .addComponent(jTextField_salida, javax.swing.GroupLayout.DEFAULT_SIZE, 377, Short.MAX_VALUE)
+                        .addComponent(jTextField_salida)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton_enviar)))
-                .addContainerGap())
+                        .addComponent(jButton_enviar))
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 482, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(7, 7, 7)
-                        .addComponent(jScrollPane2)
+                        .addContainerGap()
+                        .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(21, 21, 21)
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 378, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jButton_enviar)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jTextField_salida)
-                                .addGap(3, 3, 3)))))
+                            .addComponent(jTextField_salida)
+                            .addComponent(jButton_enviar, javax.swing.GroupLayout.DEFAULT_SIZE, 34, Short.MAX_VALUE))))
                 .addContainerGap())
         );
 
@@ -167,19 +189,52 @@ public class VentanaServidor extends javax.swing.JFrame {
     }//GEN-LAST:event_jMenuItem1ActionPerformed
 
     private void jButton_enviarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_enviarActionPerformed
-            servidor.flujoSalida(this.jTextField_salida.getText());
+        enviar();
     }//GEN-LAST:event_jButton_enviarActionPerformed
 
-    private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
-        servidor.close();
-    }//GEN-LAST:event_jMenuItem3ActionPerformed
+    public int getPuerto() {
+        return puerto;
+    }
 
-    private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed
+    public void setPuerto(int puerto) {
+        this.puerto = puerto;
+        if(servidor!=null)
+            this.jMenuItem_desconectarActionPerformed(null);
+        this.jMenuItem_conectarActionPerformed(null);
+    }
+
+    
+    
+    
+    private void enviar(){
+        if(!jTextField_salida.getText().isEmpty()){
+            servidor.flujoSalida(this.jTextField_salida.getText());
+            DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+            Calendar cal = Calendar.getInstance();            
+            this.textPanelEdit_texto.append(Color.orange,"Yo("+dateFormat.format(cal.getTime())+")>> ");
+            this.textPanelEdit_texto.append(Color.black,this.jTextField_salida.getText()+"\n");
+            this.jTextField_salida.setText("");
+        }
+        this.jTextField_salida.requestFocus();
+        
+    }
+    
+    private void jMenuItem_desconectarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem_desconectarActionPerformed
+        servidor.close();
+    }//GEN-LAST:event_jMenuItem_desconectarActionPerformed
+
+    private void jMenuItem_conectarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem_conectarActionPerformed
         try {
-            servidor=new Servidor(puerto);
-            new Thread(){ public void run(){
+            servidor=new Servidor(puerto,this);
+            this.textPanelEdit_texto.append(Color.blue, "Creado Conexiones...\n");
+                    
+            new Thread(){ public void run(){                    
                     try {
+                        this.sleep(500);
+                        textPanelEdit_texto.append(Color.blue, "Esperando conexiones en el puerto "+puerto+"...\n");
                         servidor.initServer();
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(VentanaServidor.class.getName()).log(Level.SEVERE, null, ex);
                     } catch (IOException ex) {
                         //Logger.getLogger(VentanaServidor.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -188,8 +243,28 @@ public class VentanaServidor extends javax.swing.JFrame {
         } catch (IOException ex) {
             Logger.getLogger(VentanaServidor.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }//GEN-LAST:event_jMenuItem4ActionPerformed
+    }//GEN-LAST:event_jMenuItem_conectarActionPerformed
 
+    private void jTextField_salidaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField_salidaActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTextField_salidaActionPerformed
+
+    private void jTextField_salidaKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField_salidaKeyReleased
+        if(evt.getKeyCode()==10){
+           enviar();
+        }
+    }//GEN-LAST:event_jTextField_salidaKeyReleased
+
+    private void jMenuItem5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem5ActionPerformed
+        (new ConfiguracionServer(this, true)).setVisible(true);
+    }//GEN-LAST:event_jMenuItem5ActionPerformed
+
+    public void setPanelText(String texto, Color color){
+        this.textPanelEdit_texto.append(color, texto);
+    }
+    
+ 
+    
     /**
      * @param args the command line arguments
      */
@@ -233,12 +308,13 @@ public class VentanaServidor extends javax.swing.JFrame {
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem2;
-    private javax.swing.JMenuItem jMenuItem3;
-    private javax.swing.JMenuItem jMenuItem4;
+    private javax.swing.JMenuItem jMenuItem5;
+    private javax.swing.JMenuItem jMenuItem_conectar;
+    private javax.swing.JMenuItem jMenuItem_desconectar;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTextField jTextField_salida;
-    private javax.swing.JTextPane jTextPane_entrada;
+    private view.TextPanelEdit textPanelEdit_texto;
     // End of variables declaration//GEN-END:variables
 }
