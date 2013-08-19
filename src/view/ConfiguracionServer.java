@@ -35,6 +35,7 @@ public class ConfiguracionServer extends javax.swing.JDialog {
     public ConfiguracionServer(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
+        this.setLocationRelativeTo(null);
         ventana=(VentanaServidor) parent;
 
         // Close the dialog when Esc is pressed

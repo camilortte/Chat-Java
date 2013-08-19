@@ -28,9 +28,9 @@ public class Cliente extends javax.swing.JFrame {
     public Cliente() {
         initComponents();
          try {
-            conexion=new Socket("localhost", 1201);
+            conexion=new Socket("localhost", 7000);
             salida=new ObjectOutputStream(conexion.getOutputStream());
-            salida.writeObject("CAMILORTTE");
+            salida.writeObject("CAMILORTT1E");
             entrada=new ObjectInputStream(conexion.getInputStream());
             new Thread(){
                 public void run(){

@@ -8,9 +8,14 @@ import java.awt.Color;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.DefaultListModel;
+import javax.swing.JList;
+import javax.swing.ListModel;
+import javax.swing.event.ListDataListener;
 import model.Servidor;
 
 /**
@@ -25,6 +30,7 @@ public class VentanaServidor extends javax.swing.JFrame {
     public VentanaServidor() {
         initComponents();
         puerto=7000;
+        this.setLocationRelativeTo(null);
     }
 
     /**
@@ -156,13 +162,13 @@ public class VentanaServidor extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jTextField_salida)
+                        .addComponent(jTextField_salida, javax.swing.GroupLayout.DEFAULT_SIZE, 399, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButton_enviar))
-                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 482, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jScrollPane3))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -173,11 +179,12 @@ public class VentanaServidor extends javax.swing.JFrame {
                         .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(21, 21, 21)
-                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 378, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jScrollPane3)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(jTextField_salida)
-                            .addComponent(jButton_enviar, javax.swing.GroupLayout.DEFAULT_SIZE, 34, Short.MAX_VALUE))))
+                            .addComponent(jButton_enviar, javax.swing.GroupLayout.DEFAULT_SIZE, 34, Short.MAX_VALUE))
+                        .addGap(3, 3, 3)))
                 .addContainerGap())
         );
 
@@ -208,9 +215,9 @@ public class VentanaServidor extends javax.swing.JFrame {
     
     private void enviar(){
         if(!jTextField_salida.getText().isEmpty()){
-            servidor.flujoSalida(this.jTextField_salida.getText());
             DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
             Calendar cal = Calendar.getInstance();            
+            servidor.flujoSalida("SERVER("+dateFormat.format(cal.getTime())+")>> "+this.jTextField_salida.getText());            
             this.textPanelEdit_texto.append(Color.orange,"Yo("+dateFormat.format(cal.getTime())+")>> ");
             this.textPanelEdit_texto.append(Color.black,this.jTextField_salida.getText()+"\n");
             this.jTextField_salida.setText("");
@@ -261,6 +268,17 @@ public class VentanaServidor extends javax.swing.JFrame {
 
     public void setPanelText(String texto, Color color){
         this.textPanelEdit_texto.append(color, texto);
+    }
+    
+    public void setUsuarios(ArrayList<String> usuarios){
+        DefaultListModel<String> modelo=new DefaultListModel<String>();
+        for(String usuario:usuarios){
+            modelo.addElement(usuario);
+        }
+        jList_usuariosConectados.setModel(modelo);
+        //jList_usuariosConectados.setSelectedIndex(0);
+        //System.out.println(usuarios.toString());
+        //jList_usuariosConectados.updateUI();
     }
     
  
