@@ -14,23 +14,30 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.ListModel;
 import javax.swing.event.ListDataListener;
+import model.Cliente;
 import model.Servidor;
 
 /**
  *
  * @author camilortte
  */
-public class VentanaServidor extends javax.swing.JFrame {
+public class VentanaCliente extends javax.swing.JFrame {
 
-    private Servidor servidor;
-    private int puerto;
     
-    public VentanaServidor() {
+    private int puerto;
+    private String host;
+    private Cliente cliente;
+    private String nickname;
+    
+    public VentanaCliente() {
         initComponents();
         puerto=7000;
+        host="127.0.0.1";
         this.setLocationRelativeTo(null);
+        
     }
 
     /**
@@ -60,7 +67,7 @@ public class VentanaServidor extends javax.swing.JFrame {
         jMenu3 = new javax.swing.JMenu();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("Servidor");
+        setTitle("Cliente");
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Usuarios Conectados", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, null, new java.awt.Color(51, 51, 255)));
 
@@ -84,7 +91,7 @@ public class VentanaServidor extends javax.swing.JFrame {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 386, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 387, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -210,7 +217,7 @@ public class VentanaServidor extends javax.swing.JFrame {
 
     public void setPuerto(int puerto) {
         this.puerto = puerto;
-        if(servidor!=null)
+        if(cliente!=null)
             this.jMenuItem_desconectarActionPerformed(null);
         this.jMenuItem_conectarActionPerformed(null);
     }
@@ -222,7 +229,8 @@ public class VentanaServidor extends javax.swing.JFrame {
         if(!jTextField_salida.getText().isEmpty()){
             DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
             Calendar cal = Calendar.getInstance();            
-            servidor.flujoSalida("SERVER("+dateFormat.format(cal.getTime())+")>> "+this.jTextField_salida.getText());            
+            //servidor.flujoSalida("SERVER("+dateFormat.format(cal.getTime())+")>> "+this.jTextField_salida.getText());            
+            cliente.flujoSalida(this.jTextField_salida.getText());
             this.textPanelEdit_texto.append(Color.orange,"Yo("+dateFormat.format(cal.getTime())+")>> ");
             this.textPanelEdit_texto.append(Color.black,this.jTextField_salida.getText()+"\n");
             this.jTextField_salida.setText("");
@@ -232,29 +240,25 @@ public class VentanaServidor extends javax.swing.JFrame {
     }
     
     private void jMenuItem_desconectarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem_desconectarActionPerformed
-        servidor.close();
+        cliente.close();
     }//GEN-LAST:event_jMenuItem_desconectarActionPerformed
 
     private void jMenuItem_conectarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem_conectarActionPerformed
-        try {
-            servidor=new Servidor(puerto,this);
-            this.textPanelEdit_texto.append(Color.blue, "Creado Conexiones...\n");
-                    
-            new Thread(){ public void run(){                    
-                    try {
-                        this.sleep(500);
-                        textPanelEdit_texto.append(Color.blue, "Esperando conexiones en el puerto "+puerto+"...\n");
-                        servidor.initServer();
-                    } catch (InterruptedException ex) {
-                        Logger.getLogger(VentanaServidor.class.getName()).log(Level.SEVERE, null, ex);
-                    } catch (IOException ex) {
-                        //Logger.getLogger(VentanaServidor.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }
-            }.start();
-        } catch (IOException ex) {
-            Logger.getLogger(VentanaServidor.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        nickname=JOptionPane.showInputDialog(this, "Antes de empezar: \nCual es tu nickname:");
+        cliente=new Cliente(puerto, host, nickname, this);            
+        this.textPanelEdit_texto.append(Color.blue, "Creado Conexiones...\n");
+
+        new Thread(){ public void run(){                    
+                try {
+                    this.sleep(500);
+                    textPanelEdit_texto.append(Color.blue, "Esperando conexiones en el puerto "+puerto+"...\n");
+                    cliente.initClient();
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(VentanaCliente.class.getName()).log(Level.SEVERE, null, ex);
+                } 
+            }
+        }.start();
+       
     }//GEN-LAST:event_jMenuItem_conectarActionPerformed
 
     private void jTextField_salidaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField_salidaActionPerformed
@@ -309,20 +313,20 @@ public class VentanaServidor extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(VentanaServidor.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(VentanaCliente.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(VentanaServidor.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(VentanaCliente.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(VentanaServidor.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(VentanaCliente.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(VentanaServidor.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(VentanaCliente.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new VentanaServidor().setVisible(true);
+                new VentanaCliente().setVisible(true);
             }
         });
     }
