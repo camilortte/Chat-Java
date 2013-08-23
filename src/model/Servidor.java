@@ -11,7 +11,10 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
@@ -125,7 +128,9 @@ public class Servidor {
                         //Obtenemos el mensaje y lo imprimimos en pantalla                    
                         String lectura = (String) entrada.readUTF();
                         //System.out.println("lecutura: " + lectura);
-                        ventana.setPanelText(this.nickname+"<<",Color.darkGray);
+                        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+                        Calendar cal = Calendar.getInstance();            
+                        ventana.setPanelText(this.nickname+"("+dateFormat.format(cal.getTime())+")>> ",Color.magenta);
                         ventana.setPanelText(lectura+"\n",Color.black);
                         //Lo enviamos a los demas usuarios
                         //flujoSalida(this.nickname+">>"+lectura,this.nickname);
@@ -184,10 +189,12 @@ public class Servidor {
     //Envia los mensajes a todos los clientes expecto a USER
     /*Es util para no renviar el mensaje escrito por un cliente*/
     public void flujoSalida(String mensaje, String user){
+       DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+       Calendar cal = Calendar.getInstance();           
        for (ThreadFlujo flujo:flujosEntrada){
             if(flujo.nickname!=user){
                 flujo.writte("1");
-                flujo.writte(user+">>");
+                flujo.writte(user+"("+dateFormat.format(cal.getTime())+")>> ");
                 flujo.writte(mensaje);                
             }
         }               
