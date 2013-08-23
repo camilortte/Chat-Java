@@ -79,16 +79,19 @@ public class Cliente {
     
     public void flujoEntrada(){
         String entra="";
+        String nickname_input="";
         try {
             while(conectado){
                 //Leemos el Nickname
                 //entra=(String) entrada.readObject();
                 //this.ventana.setPanelText(entra, Color.cyan);
-                //Leemos el mensaje
-                System.out.println("Se va  alerre algo");
-                
+                //Leemos el nickname
+                nickname_input=(String) entrada.readUTF();
+                System.out.println("El nickname obtenido es: "+nickname_input);
+                //Leemos el mensaje                
                 entra=(String) entrada.readUTF();
-                System.out.println("Se leio: "+entra);
+                System.out.println("El mensaje obtenido es: "+entra);
+                this.ventana.setPanelText(nickname_input, Color.green);
                 this.ventana.setPanelText(entra+"\n", Color.black);
             }
             entrada.close();

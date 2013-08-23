@@ -222,7 +222,7 @@ public class VentanaServidor extends javax.swing.JFrame {
         if(!jTextField_salida.getText().isEmpty()){
             DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
             Calendar cal = Calendar.getInstance();            
-            servidor.flujoSalida("SERVER("+dateFormat.format(cal.getTime())+")>> "+this.jTextField_salida.getText());            
+            servidor.flujoSalida(this.jTextField_salida.getText(),"SERVER("+dateFormat.format(cal.getTime())+")>> ");            
             this.textPanelEdit_texto.append(Color.orange,"Yo("+dateFormat.format(cal.getTime())+")>> ");
             this.textPanelEdit_texto.append(Color.black,this.jTextField_salida.getText()+"\n");
             this.jTextField_salida.setText("");
