@@ -115,8 +115,7 @@ public class Servidor {
                 salida=new ObjectOutputStream(conexion.getOutputStream());  
                 //salida.writeObject(usuarios);
                 ventana.setPanelText("Conectado con: " +  this.nickname+ " desde "+conexion.getInetAddress().getHostAddress()+"\n", Color.blue);
-                flujoSalida("Conectado con: " +  this.nickname);
-                flujoSalida(" desde "+conexion.getInetAddress().getHostAddress()+"\n");
+                flujoSalida(2,"Conectado con: ",  this.nickname+" desde "+conexion.getInetAddress().getHostAddress());
                 System.out.println("Conectado con: " + this.nickname+ " desde "+conexion.getInetAddress().getHostAddress()+"\n");
                 
                 //Ecuchando algun mensaje entrante
@@ -147,8 +146,7 @@ public class Servidor {
                     Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex1);
                 }
                 ventana.setPanelText("Cerrando  conexion con: " + this.nickname + " desde "+conexion.getInetAddress().getHostAddress()+"\n", Color.red);
-                flujoSalida("Cerrando  conexion con: " + this.nickname );
-                flujoSalida(" desde "+conexion.getInetAddress().getHostAddress()+"\n");
+                flujoSalida(3,"Cerrando  conexion con: ",this.nickname+" desde "+conexion.getInetAddress().getHostAddress()+"\n");
                 System.out.println("Conectado conexion con: " + this.nickname + " desde "+conexion.getInetAddress().getHostAddress()+"\n");
                 Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
             } 
@@ -175,9 +173,11 @@ public class Servidor {
     }
     
     //Envia los mensajes a todos los clientes
-    public void flujoSalida(String mensaje){
-       for (ThreadFlujo flujo:flujosEntrada){                
+    public void flujoSalida(Integer indicador,String mensaje, String user_or_other_thing){
+       for (ThreadFlujo flujo:flujosEntrada){      
+                flujo.writte(indicador.toString());
                 flujo.writte(mensaje);
+                flujo.writte(user_or_other_thing);
         }               
     }
     
@@ -186,6 +186,7 @@ public class Servidor {
     public void flujoSalida(String mensaje, String user){
        for (ThreadFlujo flujo:flujosEntrada){
             if(flujo.nickname!=user){
+                flujo.writte("1");
                 flujo.writte(user+">>");
                 flujo.writte(mensaje);                
             }

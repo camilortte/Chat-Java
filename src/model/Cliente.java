@@ -80,19 +80,40 @@ public class Cliente {
     public void flujoEntrada(){
         String entra="";
         String nickname_input="";
+        Integer tipo;
         try {
             while(conectado){
                 //Leemos el Nickname
                 //entra=(String) entrada.readObject();
                 //this.ventana.setPanelText(entra, Color.cyan);
+                //leemos el tipo de mensaje
+                /*                 
+                 * 1 = mensaje
+                 * 2 = Conexion
+                 * 3 = desconexion
+                 */
+                tipo=Integer.parseInt(entrada.readUTF());
                 //Leemos el nickname
                 nickname_input=(String) entrada.readUTF();
                 System.out.println("El nickname obtenido es: "+nickname_input);
                 //Leemos el mensaje                
                 entra=(String) entrada.readUTF();
                 System.out.println("El mensaje obtenido es: "+entra);
-                this.ventana.setPanelText(nickname_input, Color.green);
-                this.ventana.setPanelText(entra+"\n", Color.black);
+                switch (tipo){
+                    case 1:
+                        this.ventana.setPanelText(nickname_input, Color.magenta);
+                        this.ventana.setPanelText(entra+"\n", Color.black);
+                        break;
+                    case 2:
+                        this.ventana.setPanelText(nickname_input, Color.green);
+                        this.ventana.setPanelText(entra+"\n", Color.black);
+                        break;
+                    case 3:
+                        this.ventana.setPanelText(nickname_input, Color.red);
+                        this.ventana.setPanelText(entra+"\n", Color.black);
+                        break;
+                }
+                
             }
             entrada.close();
             conexion.close();
