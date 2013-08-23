@@ -85,7 +85,10 @@ public class Cliente {
                 //entra=(String) entrada.readObject();
                 //this.ventana.setPanelText(entra, Color.cyan);
                 //Leemos el mensaje
+                System.out.println("Se va  alerre algo");
+                
                 entra=(String) entrada.readUTF();
+                System.out.println("Se leio: "+entra);
                 this.ventana.setPanelText(entra+"\n", Color.black);
             }
             entrada.close();

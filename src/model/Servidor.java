@@ -61,7 +61,7 @@ public class Servidor {
         private boolean stop;
         ObjectInputStream entrada;
         ObjectOutputStream salida;
-        private String nickname;
+        public String nickname;
 
         public ThreadFlujo(Socket conexion) {
             this.conexion = conexion;
@@ -113,7 +113,7 @@ public class Servidor {
                 ventana.setUsuarios(usuarios);                
                 //Informamos de la conexion                
                 salida=new ObjectOutputStream(conexion.getOutputStream());  
-                salida.writeObject(usuarios);
+                //salida.writeObject(usuarios);
                 ventana.setPanelText("Conectado con: " +  this.nickname+ " desde "+conexion.getInetAddress().getHostAddress()+"\n", Color.blue);
                 flujoSalida("Conectado con: " +  this.nickname+ " desde "+conexion.getInetAddress().getHostAddress()+"\n");
                 System.out.println("Conectado con: " + this.nickname+ " desde "+conexion.getInetAddress().getHostAddress()+"\n");
@@ -176,6 +176,15 @@ public class Servidor {
                 flujo.writte(mensaje);
         }               
     }
+    
+    //Envia los mensajes a todos los clientes expecto a USER
+    public void flujoSalida(String mensaje, String user){
+       for (ThreadFlujo flujo:flujosEntrada){
+            if(flujo.nickname!=user)
+                flujo.writte(mensaje);
+        }               
+    }
+       
     
     //Finalizar todas las conexiones activas y cerrar el servidor
     public void close(){
