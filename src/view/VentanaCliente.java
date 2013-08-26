@@ -5,7 +5,9 @@
 package view;
 
 import java.awt.Color;
+import java.io.File;
 import java.io.IOException;
+import java.net.SocketException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -13,11 +15,13 @@ import java.util.Calendar;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
+import javax.swing.JFileChooser;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.ListModel;
 import javax.swing.event.ListDataListener;
 import model.Cliente;
+import model.ConexionFTP;
 import model.Servidor;
 
 /**
@@ -37,7 +41,7 @@ public class VentanaCliente extends javax.swing.JFrame {
         puerto=7000;
         host="127.0.0.1";
         this.setLocationRelativeTo(null);
-        
+        cliente=null;
     }
 
     /**
@@ -56,6 +60,7 @@ public class VentanaCliente extends javax.swing.JFrame {
         jButton_enviar = new javax.swing.JButton();
         jScrollPane3 = new javax.swing.JScrollPane();
         textPanelEdit_texto = new view.TextPanelEdit();
+        jButton1 = new javax.swing.JButton();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
@@ -91,7 +96,7 @@ public class VentanaCliente extends javax.swing.JFrame {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 387, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 388, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -115,6 +120,13 @@ public class VentanaCliente extends javax.swing.JFrame {
 
         textPanelEdit_texto.setFont(new java.awt.Font("Liberation Mono", 1, 14)); // NOI18N
         jScrollPane3.setViewportView(textPanelEdit_texto);
+
+        jButton1.setText("Subir Archivo");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
 
         jMenu1.setText("Archivo");
 
@@ -179,7 +191,10 @@ public class VentanaCliente extends javax.swing.JFrame {
                         .addComponent(jTextField_salida, javax.swing.GroupLayout.DEFAULT_SIZE, 399, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButton_enviar))
-                    .addComponent(jScrollPane3))
+                    .addComponent(jScrollPane3)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jButton1)
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -190,8 +205,10 @@ public class VentanaCliente extends javax.swing.JFrame {
                         .addContainerGap()
                         .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(21, 21, 21)
-                        .addComponent(jScrollPane3)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 352, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(4, 4, 4)
+                        .addComponent(jButton1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(jTextField_salida)
@@ -217,9 +234,10 @@ public class VentanaCliente extends javax.swing.JFrame {
 
     public void setPuerto(int puerto) {
         this.puerto = puerto;
-        if(cliente!=null)
+        if(cliente!=null){
             this.jMenuItem_desconectarActionPerformed(null);
-        this.jMenuItem_conectarActionPerformed(null);
+            this.jMenuItem_conectarActionPerformed(null);
+        }
     }
 
     
@@ -245,20 +263,21 @@ public class VentanaCliente extends javax.swing.JFrame {
 
     private void jMenuItem_conectarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem_conectarActionPerformed
         nickname=JOptionPane.showInputDialog(this, "Antes de empezar: \nCual es tu nickname:");
-        cliente=new Cliente(puerto, host, nickname, this);            
-        this.textPanelEdit_texto.append(Color.blue, "Creado Conexiones...\n");
+        if(nickname!=null){
+            cliente=new Cliente(puerto, host, nickname, this);            
+            this.textPanelEdit_texto.append(Color.blue, "Creado Conexiones...\n");
 
-        new Thread(){ public void run(){                    
-                try {
-                    this.sleep(500);
-                    textPanelEdit_texto.append(Color.blue, "Esperando conexiones en el puerto "+puerto+"...\n");
-                    cliente.initClient();
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(VentanaCliente.class.getName()).log(Level.SEVERE, null, ex);
-                } 
-            }
-        }.start();
-       
+            new Thread(){ public void run(){                    
+                    try {
+                        this.sleep(500);
+                        textPanelEdit_texto.append(Color.blue, "Esperando conexiones en el puerto "+puerto+"...\n");
+                        cliente.initClient();
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(VentanaCliente.class.getName()).log(Level.SEVERE, null, ex);
+                    } 
+                }
+            }.start();
+        }       
     }//GEN-LAST:event_jMenuItem_conectarActionPerformed
 
     private void jTextField_salidaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField_salidaActionPerformed
@@ -272,12 +291,35 @@ public class VentanaCliente extends javax.swing.JFrame {
     }//GEN-LAST:event_jTextField_salidaKeyReleased
 
     private void jMenuItem5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem5ActionPerformed
-        (new ConfiguracionServer(this, true)).setVisible(true);
+        (new ConfiguracionCliente(this, true)).setVisible(true);
+       /* if(cliente!=null){
+            cliente.close();
+            cliente=new Cliente(puerto, host, nickname, this);  
+        }*/
     }//GEN-LAST:event_jMenuItem5ActionPerformed
 
     private void jList_usuariosConectadosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jList_usuariosConectadosMouseClicked
         System.out.println(jList_usuariosConectados.getSelectedIndex());
     }//GEN-LAST:event_jList_usuariosConectadosMouseClicked
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        JFileChooser choice = new JFileChooser();
+        int option = choice.showOpenDialog(this);
+        File archivo = null;
+        if (option == JFileChooser.APPROVE_OPTION) {
+            archivo=choice.getSelectedFile();
+        }
+        try {
+            ConexionFTP conexion=new ConexionFTP("1","1",host);
+            if(!conexion.upFile(archivo, "MiArchvo.txt")){
+                JOptionPane.showMessageDialog(this, "No se pudo subir el archivo","Error",JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (SocketException ex) {
+            Logger.getLogger(VentanaCliente.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(VentanaCliente.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_jButton1ActionPerformed
 
     public void setPanelText(String texto, Color color){
         this.textPanelEdit_texto.append(color, texto);
@@ -293,6 +335,15 @@ public class VentanaCliente extends javax.swing.JFrame {
         //System.out.println(usuarios.toString());
         //jList_usuariosConectados.updateUI();
     }
+
+    public String getHost() {
+        return host;
+    }
+
+    public void setHost(String host) {
+        this.host = host;
+    }
+    
     
  
     
@@ -331,6 +382,7 @@ public class VentanaCliente extends javax.swing.JFrame {
         });
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton_enviar;
     private javax.swing.JList jList_usuariosConectados;
     private javax.swing.JMenu jMenu1;
