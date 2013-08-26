@@ -309,10 +309,13 @@ public class VentanaCliente extends javax.swing.JFrame {
         if (option == JFileChooser.APPROVE_OPTION) {
             archivo=choice.getSelectedFile();
         }
-        try {
+        System.out.println("Es arxchivo: "+ archivo.exists());
+        try {            
             ConexionFTP conexion=new ConexionFTP("1","1",host);
-            if(!conexion.upFile(archivo, "MiArchvo.txt")){
+            if(!conexion.upFile(archivo)){
                 JOptionPane.showMessageDialog(this, "No se pudo subir el archivo","Error",JOptionPane.ERROR_MESSAGE);
+            }else{
+                JOptionPane.showMessageDialog(this, "El archivo "+archivo.getName()+" se subio satisfactoriamente","Error",JOptionPane.INFORMATION_MESSAGE);
             }
         } catch (SocketException ex) {
             Logger.getLogger(VentanaCliente.class.getName()).log(Level.SEVERE, null, ex);

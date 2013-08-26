@@ -37,7 +37,6 @@ public class ConexionFTP {
     public ConexionFTP(String user, String password,String host) throws SocketException, IOException {
         this.user = user;
         this.password = password;
-        host = "127.0.0.1";
         this.host=host;
     }
 
@@ -47,18 +46,20 @@ public class ConexionFTP {
         host = "127.0.0.1";
     }
 
-    public boolean upFile(File file, String nombre_Archivo) throws SocketException, IOException {
+    public boolean upFile(File file) throws SocketException, IOException {
         this.file = file;
         this.nombre_Archivo = nombre_Archivo;
         boolean hecho = false;
         try {
             this.client = new FTPClient();
-            this.client.connect(InetAddress.getByName(host));
+            //this.client.connect(InetAddress.getByName(host));
+            this.client.connect(host);            
             this.client.login(user, password);
             this.client.enterLocalPassiveMode();
             System.out.println(this.client.changeWorkingDirectory(directorio));
             this.client.setFileType(FTP.ASCII_FILE_TYPE);
             InputStream inputStream = new FileInputStream(file);
+            nombre_Archivo=file.getName();
             hecho = this.client.storeFile(nombre_Archivo, inputStream);
             System.out.println(this.client.storeFile(nombre_Archivo, inputStream));
             if (hecho) {
@@ -69,6 +70,8 @@ public class ConexionFTP {
         } catch (UnknownHostException ex) {
             Logger.getLogger(ConexionFTP.class.getName()).log(Level.SEVERE, null, ex);
             hecho = false;
+            this.client.logout();
+            this.client.disconnect();
         }
         return hecho;
     }
@@ -80,8 +83,8 @@ public class ConexionFTP {
         try {
             this.client = new FTPClient();
             this.client.connect(InetAddress.getByName(host));
-            this.client.login(user, password);
-            this.client.enterLocalPassiveMode();
+            this.client.login(user, password);            
+            //this.client.enterLocalPassiveMode();
             System.out.println(this.client.changeWorkingDirectory(directorio));
             this.client.setFileType(FTP.ASCII_FILE_TYPE);
             InputStream inputStream = new FileInputStream(file);

@@ -153,10 +153,10 @@ public class ConfiguracionCliente extends javax.swing.JDialog {
     private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
         
         int port = (int) jSpinner1.getValue();
-        String host=jTextField_host.getText();
-        if(port != ventana.getPuerto() && host!=null){
+        String host1=jTextField_host.getText();
+        if(port != ventana.getPuerto() || host1!=null){
             ventana.setPuerto(port);            
-            ventana.setHost(host);
+            ventana.setHost(host1);
         }
         doClose(RET_OK);
        
