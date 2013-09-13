@@ -54,6 +54,16 @@ public class Servidor {
         flujosEntrada = new ArrayList<ThreadFlujo>();
         flujosEntrada.clear();        
     }
+    
+    
+    public void deleteUser(String nickname){
+         for (ThreadFlujo flujo:flujosEntrada){   
+           if(flujo.nickname==nickname){
+                flujo.close();
+                break;
+           }
+        } 
+    }
 
     private class ThreadFlujo extends Thread {
 
@@ -99,11 +109,12 @@ public class Servidor {
         
         public void close(){
             try {
-                stop=true;            
-                conexion.close();
+                conexion.close();                
+                
             } catch (IOException ex) {
                 Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
             }
+            stop=true;            
         }
         
        public void writte(String mensaje){

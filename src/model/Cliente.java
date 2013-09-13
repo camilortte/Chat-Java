@@ -61,26 +61,12 @@ public class Cliente {
                 }
             ;
         } .start();  
-            /*----No funcional----*/
             new Thread() {
                 public void run() {
                     flujoUsuarios();
-                   /* try {
-                        conectado=true;            
-                        System.out.println("Esperanod la conexion 8000");
-                        conexionUsers = new Socket(host, 8000);
-                        objectoEntrante = new ObjectInputStream(conexionUsers.getInputStream());
-                        System.out.println("Pasamos esto");
-                        flujoUsuarios1();
-                    } catch (UnknownHostException ex) {
-                        Logger.getLogger(Cliente.class.getName()).log(Level.SEVERE, null, ex);
-                    } catch (IOException ex) {
-                        Logger.getLogger(Cliente.class.getName()).log(Level.SEVERE, null, ex);
-                    }*/
                 }
             ;
             } .start(); 
-            /*--------------------*/
             
         } catch (UnknownHostException ex) {
             System.out.println(ex);
@@ -174,6 +160,9 @@ public class Cliente {
             
         } catch (IOException ex) {
            // Logger.getLogger(VentanaCliente.class.getName()).log(Level.SEVERE, null, ex);
+            this.ventana.setPanelText("La conexion se Cerro :(\n", Color.red);
+            this.usuarios.clear();
+            this.ventana.setUsuarios(usuarios);
             
         } 
     }

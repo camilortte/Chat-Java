@@ -331,7 +331,7 @@ public class VentanaCliente extends javax.swing.JFrame {
         int option = choice.showOpenDialog(this);        
         if (option == JFileChooser.APPROVE_OPTION) {
             archivo=choice.getSelectedFile();
-        System.out.println("Es arxchivo: "+ archivo.exists());
+        System.out.println("Es archivo: "+ archivo.exists());
         try {            
             ConexionFTP conexion=new ConexionFTP("1","1",host);
             if(!conexion.upFile(archivo)){

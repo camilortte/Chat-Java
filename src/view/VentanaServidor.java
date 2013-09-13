@@ -14,6 +14,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.ListModel;
 import javax.swing.event.ListDataListener;
 import model.Servidor;
@@ -45,6 +46,7 @@ public class VentanaServidor extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jList_usuariosConectados = new javax.swing.JList();
+        jButton1 = new javax.swing.JButton();
         jTextField_salida = new javax.swing.JTextField();
         jButton_enviar = new javax.swing.JButton();
         jScrollPane3 = new javax.swing.JScrollPane();
@@ -72,21 +74,32 @@ public class VentanaServidor extends javax.swing.JFrame {
         });
         jScrollPane1.setViewportView(jList_usuariosConectados);
 
+        jButton1.setText("Eliminar User");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 180, Short.MAX_VALUE)
+                    .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 387, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 373, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButton1)
+                .addGap(13, 13, 13))
         );
 
         jTextField_salida.addActionListener(new java.awt.event.ActionListener() {
@@ -232,7 +245,7 @@ public class VentanaServidor extends javax.swing.JFrame {
         if(!jTextField_salida.getText().isEmpty()){
             DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
             Calendar cal = Calendar.getInstance();            
-            servidor.flujoSalida(this.jTextField_salida.getText(),"SERVER("+dateFormat.format(cal.getTime())+")>> ");            
+            servidor.flujoSalida(this.jTextField_salida.getText(),"SERVER");            
             this.textPanelEdit_texto.append(Color.orange,"Yo("+dateFormat.format(cal.getTime())+")>> ");
             this.textPanelEdit_texto.append(Color.black,this.jTextField_salida.getText()+"\n");
             this.jTextField_salida.setText("");
@@ -289,6 +302,17 @@ public class VentanaServidor extends javax.swing.JFrame {
         (new AcercaDe(this, false)).setVisible(true);
     }//GEN-LAST:event_jMenuItem3ActionPerformed
 
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        if (!this.jList_usuariosConectados.isSelectionEmpty()){
+            int confirmacion=JOptionPane.showConfirmDialog(this, 
+                    "¿Desea eliminar el usuario "+jList_usuariosConectados.getSelectedValue()+" ?","Eliminar usuario",JOptionPane.YES_NO_CANCEL_OPTION);
+            if(confirmacion==JOptionPane.OK_OPTION){
+                this.servidor.deleteUser(jList_usuariosConectados.getSelectedValue().toString());
+                JOptionPane.showMessageDialog(this, "SE eliomonpo");
+            }
+        }
+    }//GEN-LAST:event_jButton1ActionPerformed
+
     public void setPanelText(String texto, Color color){
         this.textPanelEdit_texto.append(color, texto);
     }
@@ -341,6 +365,7 @@ public class VentanaServidor extends javax.swing.JFrame {
         });
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton_enviar;
     private javax.swing.JList jList_usuariosConectados;
     private javax.swing.JMenu jMenu1;
