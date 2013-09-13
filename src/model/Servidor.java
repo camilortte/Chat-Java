@@ -1,7 +1,4 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package model;
 
 import java.awt.Color;
@@ -20,13 +17,10 @@ import java.util.logging.Logger;
 import javax.swing.JFrame;
 import view.VentanaServidor;
 
-/**
- *
- * @author camilortte
- */
 public class Servidor {
 
     private ServerSocket socketServidor;
+    private ServerSocket socketServidorUsers;
     private Socket conexion;
     private int puerto;
     private boolean multiplesConexiones;
@@ -34,6 +28,8 @@ public class Servidor {
     private ArrayList<ThreadFlujo> flujosEntrada;
     private VentanaServidor ventana;
     private ArrayList<String> usuarios;
+    private ObjectOutputStream sal2;
+    String clave="4d89g13j4j91j27c582ji69373y788r6";
 
     public Servidor(int puerto) throws IOException {
         this.puerto = puerto;
@@ -52,7 +48,8 @@ public class Servidor {
         this.puerto = puerto;
         usuarios=new ArrayList<String>();
         usuarios.clear();
-        socketServidor = new ServerSocket(puerto);
+        socketServidor = new ServerSocket(puerto);        
+        socketServidorUsers=new ServerSocket(8000);
         multiplesConexiones = true;
         flujosEntrada = new ArrayList<ThreadFlujo>();
         flujosEntrada.clear();        
@@ -61,13 +58,24 @@ public class Servidor {
     private class ThreadFlujo extends Thread {
 
         public Socket conexion;
+        public Socket conexionUsuarios;
         private boolean stop;
         ObjectInputStream entrada;
-        ObjectOutputStream salida;
+        ObjectOutputStream salida;        
+        ObjectOutputStream salidaUsuarios;
         public String nickname;
+        String clave="4d89g13j4j91j27c582ji69373y788r6";
 
-        public ThreadFlujo(Socket conexion) {
+        public ThreadFlujo(Socket conexion,Socket conexionUsuarios) {
             this.conexion = conexion;
+            this.conexionUsuarios=conexionUsuarios;
+            /*try {
+                salidaUsuarios=new ObjectOutputStream(conexionUsuarios.getOutputStream());
+                salidaUsuarios.writeObject(null);
+            } catch (IOException ex) {
+                Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
+            }*/
+            
             stop=false;
         }
 
@@ -106,6 +114,18 @@ public class Servidor {
                 Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
             }
        }
+       
+       public void writeUsuarios(ArrayList<String> usuarios){
+           try {
+               salidaUsuarios.flush();
+                salidaUsuarios.writeObject(usuarios);                
+            } catch (IOException ex) {
+                Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
+            }
+       }
+       
+     
+       
         public void run() {            
             try {
                 //Obtenemos datos como el NICKNAME
@@ -113,47 +133,74 @@ public class Servidor {
                 this.nickname=(String)entrada.readObject();
                 //Actualizamos usuarios
                 usuarios.add(nickname);
-                ventana.setUsuarios(usuarios);                
+                ventana.setUsuarios(usuarios);    
+                /**asdasdasdasdasd*/
+                salidaUsuarios=new ObjectOutputStream(conexionUsuarios.getOutputStream());
+                salidaUsuarios.writeObject(usuarios);
+                //sal2=new ObjectOutputStream(conexionUsers.getOutputStream());
+                //sal2.writeObject(usuarios);
                 //Informamos de la conexion                
-                salida=new ObjectOutputStream(conexion.getOutputStream());  
-                //salida.writeObject(usuarios);
+                salida=new ObjectOutputStream(conexion.getOutputStream());                                 
                 ventana.setPanelText("Conectado con: " +  this.nickname+ " desde "+conexion.getInetAddress().getHostAddress()+"\n", Color.blue);
                 flujoSalida(2,"Conectado con: ",  this.nickname+" desde "+conexion.getInetAddress().getHostAddress());
                 System.out.println("Conectado con: " + this.nickname+ " desde "+conexion.getInetAddress().getHostAddress()+"\n");
-                
+                flujoSalidaUsuarios(usuarios,this.nickname);
                 //Ecuchando algun mensaje entrante
-                //entrada = new ObjectInputStream(conexion.getInputStream());
-                while (!stop) {
-                        
-                        //Obtenemos el mensaje y lo imprimimos en pantalla                    
+                //entrada = new ObjectInputStream(conexion.getInputStream());  
+                DES CifradoDes=new DES(this.clave);
+                while (!stop) {                        
+                        //Obtenemos el mensaje y lo imprimimos en pantalla    
+                    System.out.print("El tipo de emsanje entranre es: " );                    
                         String lectura = (String) entrada.readUTF();
-                        //System.out.println("lecutura: " + lectura);
+                        System.out.println(lectura);
                         DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
-                        Calendar cal = Calendar.getInstance();            
-                        ventana.setPanelText(this.nickname+"("+dateFormat.format(cal.getTime())+")>> ",Color.magenta);
-                        ventana.setPanelText(lectura+"\n",Color.black);
-                        //Lo enviamos a los demas usuarios
-                        //flujoSalida(this.nickname+">>"+lectura,this.nickname);
-                        flujoSalida(lectura,this.nickname);
+                        Calendar cal = Calendar.getInstance();   
+                        switch (Integer.parseInt(lectura)){
+                            case 1:                                 
+                                lectura = CifradoDes.desencriptar((String) entrada.readUTF());                                                                         
+                                ventana.setPanelText(this.nickname+"("+dateFormat.format(cal.getTime())+")>> ",Color.magenta);
+                                ventana.setPanelText(lectura+"\n",Color.black);
+                                //Lo enviamos a los demas usuarios
+                                //flujoSalida(this.nickname+">>"+lectura,this.nickname);
+                                flujoSalida(lectura,this.nickname);
+                                break;
+                            case 4:
+                                lectura = CifradoDes.desencriptar((String) entrada.readUTF()); 
+                                ventana.setPanelText(this.nickname+"("+dateFormat.format(cal.getTime())+")>> ",Color.magenta);
+                                ventana.setPanelText("ha subido el archivo "+lectura+"\n",Color.blue);
+                                
+                                //Lo enviamos a los demas usuarios
+                                //flujoSalida(this.nickname+">>"+lectura,this.nickname);
+                                flujoSalida(4,this.nickname,lectura);          
+                                break;
+                        } 
+                        
+                       
                         
                         
                 }
             } catch (ClassNotFoundException ex) {
                 Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
             } catch (IOException ex) {                
-                System.out.println("Controlado");
-                //Actualizamos usuarios                
-                usuarios.remove(nickname);
-                ventana.setUsuarios(usuarios);
                 try {
-                    salida.writeObject(usuarios);
-                } catch (IOException ex1) {
-                    Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex1);
+                    System.out.println("Controlado");
+                    //Actualizamos usuarios                
+                    usuarios.remove(nickname);
+                    ventana.setUsuarios(usuarios);
+                    ventana.setPanelText("Cerrando  conexion con: " + this.nickname + " desde "+conexion.getInetAddress().getHostAddress()+"\n", Color.red);
+                    flujoSalida(3,"Cerrando  conexion con: ",this.nickname+" desde "+conexion.getInetAddress().getHostAddress()+"\n");
+                    System.out.println("Conectado conexion con: " + this.nickname + " desde "+conexion.getInetAddress().getHostAddress()+"\n");
+                    /*
+                    try {
+                        sal2.writeObject(usuarios);
+                    } catch (IOException ex1) {
+                        Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex1);
+                    }*/
+                    
+                } catch(Exception e){
+                    e.printStackTrace();                    
+                   
                 }
-                ventana.setPanelText("Cerrando  conexion con: " + this.nickname + " desde "+conexion.getInetAddress().getHostAddress()+"\n", Color.red);
-                flujoSalida(3,"Cerrando  conexion con: ",this.nickname+" desde "+conexion.getInetAddress().getHostAddress()+"\n");
-                System.out.println("Conectado conexion con: " + this.nickname + " desde "+conexion.getInetAddress().getHostAddress()+"\n");
-                Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
             } 
             finally {
                 try {
@@ -166,36 +213,62 @@ public class Servidor {
     }
 
     public void initServer() throws IOException {
-        //A la espera de multiples conexiones        
+        //A la espera de multiples conexiones              
+        Socket conexionUsuarios;
         while (multiplesConexiones) {
             System.out.println("A la espera de una conexion...");
-            conexion = socketServidor.accept();
+            conexion = socketServidor.accept();          
+            
+            conexionUsuarios=socketServidorUsers.accept();
+           
+            
+            System.out.println("Se establecio conexion CON    "+conexionUsuarios.getInetAddress());
             //Creacion del hilo de escucha
-            flujosEntrada.add(new ThreadFlujo(conexion));
+            flujosEntrada.add(new ThreadFlujo(conexion,conexionUsuarios));
             //inicializacion hilo
             flujosEntrada.get(flujosEntrada.size() - 1).start();
+            //escuchamos los usuarios entrantes
+            //aaaaaaaaaaaaaaaaaaa
+            //conexionUsers=socketServidorUsers.accept();
+            
         }
     }
     
+    public void flujoSalidaUsuarios(ArrayList<String> usuare,String nickname){
+        /*for (ThreadFlujo flujo:flujosEntrada){                 
+                flujo.writeUsuarios(usuare);
+        }  */
+    }
+    
     //Envia los mensajes a todos los clientes
-    public void flujoSalida(Integer indicador,String mensaje, String user_or_other_thing){
-       for (ThreadFlujo flujo:flujosEntrada){      
+    public void flujoSalida(Integer indicador,String user_or_other_thing,String mensaje){
+        DES CifradoDes=new DES(this.clave);
+       for (ThreadFlujo flujo:flujosEntrada){   
+           if(flujo.nickname!=user_or_other_thing){
                 flujo.writte(indicador.toString());
-                flujo.writte(mensaje);
-                flujo.writte(user_or_other_thing);
+                flujo.writte(user_or_other_thing);                
+                flujo.writte(CifradoDes.encriptar(mensaje));
+           }
         }               
     }
+    
+   
     
     //Envia los mensajes a todos los clientes expecto a USER
     /*Es util para no renviar el mensaje escrito por un cliente*/
     public void flujoSalida(String mensaje, String user){
        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
-       Calendar cal = Calendar.getInstance();           
+       Calendar cal = Calendar.getInstance();  
+       
+       DES CifradoDes = new DES(this.clave);
+       
+       
        for (ThreadFlujo flujo:flujosEntrada){
             if(flujo.nickname!=user){
                 flujo.writte("1");
                 flujo.writte(user+"("+dateFormat.format(cal.getTime())+")>> ");
-                flujo.writte(mensaje);                
+                //flujo.writte(mensaje);
+                flujo.writte(CifradoDes.encriptar(mensaje));
             }
         }               
     }

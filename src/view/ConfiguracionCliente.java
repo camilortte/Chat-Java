@@ -98,7 +98,7 @@ public class ConfiguracionCliente extends javax.swing.JDialog {
         jSpinner1.setModel(new javax.swing.SpinnerNumberModel(7000, 1201, 7000, 1));
         jSpinner1.setRequestFocusEnabled(false);
 
-        jLabel2.setText("jLabel2");
+        jLabel2.setText("Host");
 
         jTextField_host.setText("localhost");
 
@@ -115,13 +115,13 @@ public class ConfiguracionCliente extends javax.swing.JDialog {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(cancelButton))
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel1)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel1)
+                            .addComponent(jLabel2))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jSpinner1))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel2)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTextField_host)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jTextField_host)
+                            .addComponent(jSpinner1))))
                 .addContainerGap())
         );
 
@@ -153,7 +153,7 @@ public class ConfiguracionCliente extends javax.swing.JDialog {
     private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
         
         int port = (int) jSpinner1.getValue();
-        String host1=jTextField_host.getText();
+        String host1=jTextField_host.getText();        
         if(port != ventana.getPuerto() || host1!=null){
             ventana.setPuerto(port);            
             ventana.setHost(host1);

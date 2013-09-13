@@ -4,12 +4,16 @@
  */
 package model;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
@@ -19,6 +23,7 @@ import java.util.logging.Logger;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
+import view.archivo;
 
 /**
  *
@@ -33,23 +38,28 @@ public class ConexionFTP {
     private File file;
     private String nombre_Archivo;
     private static String directorio = "/pub";
+    private DES DESCifrar;
 
     public ConexionFTP(String user, String password,String host) throws SocketException, IOException {
         this.user = user;
         this.password = password;
         this.host=host;
+        DESCifrar=new DES("4d89g13j4j91j27c582ji69373y788r6");
     }
 
     public ConexionFTP() throws SocketException, IOException {
         this.user = "anonymous";
         this.password = "";
         host = "127.0.0.1";
+        DESCifrar=new DES("4d89g13j4j91j27c582ji69373y788r6");
     }
 
     public boolean upFile(File file) throws SocketException, IOException {
         this.file = file;
         this.nombre_Archivo = nombre_Archivo;
         boolean hecho = false;
+        File archivo_encriptado=crearArchivoEncriptado(file);
+        System.out.println("ARCHIVO ENCRIPTADO: "+archivo_encriptado.getName());
         try {
             this.client = new FTPClient();
             //this.client.connect(InetAddress.getByName(host));
@@ -58,7 +68,7 @@ public class ConexionFTP {
             this.client.enterLocalPassiveMode();
             System.out.println(this.client.changeWorkingDirectory(directorio));
             this.client.setFileType(FTP.ASCII_FILE_TYPE);
-            InputStream inputStream = new FileInputStream(file);
+            InputStream inputStream = new FileInputStream(DESCifrar.encriptar(archivo_encriptado));
             nombre_Archivo=file.getName();
             hecho = this.client.storeFile(nombre_Archivo, inputStream);
             System.out.println(this.client.storeFile(nombre_Archivo, inputStream));
@@ -67,6 +77,7 @@ public class ConexionFTP {
             }
             this.client.logout();
             this.client.disconnect();
+            archivo_encriptado.delete();
         } catch (UnknownHostException ex) {
             Logger.getLogger(ConexionFTP.class.getName()).log(Level.SEVERE, null, ex);
             hecho = false;
@@ -76,8 +87,55 @@ public class ConexionFTP {
         return hecho;
     }
 
+    public File crearArchivoEncriptado(File archivo_a_encriptar){
+        File archivo_encriptado=null;
+        FileWriter fichero = null;
+        PrintWriter pw = null;
+        try
+        {
+            archivo_encriptado=new File("encript.txt");
+            fichero = new FileWriter(archivo_encriptado);
+            pw = new PrintWriter(fichero);
+            FileReader fr = null;
+            BufferedReader br = null;
+
+            try {
+               // Apertura del fichero y creacion de BufferedReader para poder
+               // hacer una lectura comoda (disponer del metodo readLine()).               
+               fr = new FileReader (archivo_a_encriptar);
+               br = new BufferedReader(fr);
+
+               // Lectura del fichero
+               String linea;
+               while((linea=br.readLine())!=null)
+                  pw.println(linea);
+            }
+            catch(Exception e){
+               e.printStackTrace();
+            }finally{
+                if(fr!=null)
+                    fr.close();
+            }
+ 
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+           try {
+           // Nuevamente aprovechamos el finally para 
+           // asegurarnos que se cierra el fichero.
+           if (null != fichero)
+              fichero.close();
+           } catch (Exception e2) {
+              e2.printStackTrace();
+           }
+          
+        }
+        return archivo_encriptado;
+    }
+    
     public boolean upFile(String file, String nombre_Archivo) throws SocketException, IOException {
         this.file = new File(file);
+        File archivo_encriptado=crearArchivoEncriptado(this.file);
         this.nombre_Archivo = nombre_Archivo;
         boolean hecho = false;
         try {
@@ -87,7 +145,7 @@ public class ConexionFTP {
             //this.client.enterLocalPassiveMode();
             System.out.println(this.client.changeWorkingDirectory(directorio));
             this.client.setFileType(FTP.ASCII_FILE_TYPE);
-            InputStream inputStream = new FileInputStream(file);
+            InputStream inputStream = new FileInputStream(archivo_encriptado);
             hecho = this.client.storeFile(nombre_Archivo, inputStream);
             System.out.println(this.client.storeFile(nombre_Archivo, inputStream));
             if (hecho) {
@@ -102,7 +160,7 @@ public class ConexionFTP {
         return hecho;
     }
 
-    public boolean downFile(String remoteFile) {
+   /* public boolean downFile(String remoteFile, String nombre) {
         boolean bien = false;
         client = new FTPClient();
         OutputStream outStream;
@@ -110,9 +168,10 @@ public class ConexionFTP {
             this.client.connect(InetAddress.getByName(host));
             client.login(user, password);
             client.enterLocalPassiveMode();
-            outStream = new FileOutputStream("a.txt");
+            boolean changeWorkingDirectory = client.changeWorkingDirectory(directorio);
+            outStream = new FileOutputStream(nombre);
             client.retrieveFile(remoteFile, outStream);
-            bien = true;
+            bien = true;            
         } catch (IOException ioe) {
             System.out.println("Error communicating with FTP server.");
             bien = false;
@@ -124,7 +183,38 @@ public class ConexionFTP {
             Logger.getLogger(ConexionFTP.class.getName()).log(Level.SEVERE, null, ex);
         }
         return bien;
+    }*/
+    
+    public boolean downFile(String remoteFile,File archivo) {
+        boolean bien = false;
+        client = new FTPClient();
+        OutputStream outStream = null;
+        System.out.println("archiiiivo "+archivo.getAbsolutePath());
+        try {
+            this.client.connect(InetAddress.getByName(host));
+            client.login(user, password);
+            client.enterLocalPassiveMode();
+            boolean changeWorkingDirectory = client.changeWorkingDirectory(directorio);
+            outStream = new FileOutputStream(archivo);            
+            client.retrieveFile(remoteFile, outStream);
+            archivo = DESCifrar.desencriptar(archivo);
+            //archivo=DESCifrar.desencriptar(f);
+            //archivo = DESCifrar.desencriptar(archivo);
+            bien = true;
+        } catch (IOException ioe) {
+            System.out.println("Error communicating with FTP server.");
+            bien = false;
+        }
+        try {
+            outStream.close();
+            client.logout();
+            client.disconnect();
+        } catch (IOException ex) {
+            Logger.getLogger(ConexionFTP.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return bien;
     }
+
 
     public ArrayList<String> listFIles(String dir) {
         ArrayList<String> filesArray=new ArrayList<String>();

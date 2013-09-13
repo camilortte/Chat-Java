@@ -35,6 +35,7 @@ public class VentanaCliente extends javax.swing.JFrame {
     private String host;
     private Cliente cliente;
     private String nickname;
+    private File archivo = null;
     
     public VentanaCliente() {
         initComponents();
@@ -70,6 +71,7 @@ public class VentanaCliente extends javax.swing.JFrame {
         jMenuItem5 = new javax.swing.JMenuItem();
         jMenuItem_desconectar = new javax.swing.JMenuItem();
         jMenu3 = new javax.swing.JMenu();
+        jMenuItem3 = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Cliente");
@@ -174,6 +176,15 @@ public class VentanaCliente extends javax.swing.JFrame {
         jMenuBar1.add(jMenu2);
 
         jMenu3.setText("Acerca de");
+
+        jMenuItem3.setText("Acerca de");
+        jMenuItem3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem3ActionPerformed(evt);
+            }
+        });
+        jMenu3.add(jMenuItem3);
+
         jMenuBar1.add(jMenu3);
 
         setJMenuBar(jMenuBar1);
@@ -205,8 +216,8 @@ public class VentanaCliente extends javax.swing.JFrame {
                         .addContainerGap()
                         .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 352, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(22, 22, 22)
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 352, Short.MAX_VALUE)
                         .addGap(4, 4, 4)
                         .addComponent(jButton1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -248,11 +259,23 @@ public class VentanaCliente extends javax.swing.JFrame {
             DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
             Calendar cal = Calendar.getInstance();            
             //servidor.flujoSalida("SERVER("+dateFormat.format(cal.getTime())+")>> "+this.jTextField_salida.getText());            
-            cliente.flujoSalida(this.jTextField_salida.getText());
+            cliente.flujoSalida(1,this.jTextField_salida.getText());
             this.textPanelEdit_texto.append(Color.orange,"Yo("+dateFormat.format(cal.getTime())+")>> ");
             this.textPanelEdit_texto.append(Color.black,this.jTextField_salida.getText()+"\n");
             this.jTextField_salida.setText("");
         }
+        this.jTextField_salida.requestFocus();
+        
+    }
+    
+    private void enviar(String nombre_archivo){
+            DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+            Calendar cal = Calendar.getInstance();            
+            //servidor.flujoSalida("SERVER("+dateFormat.format(cal.getTime())+")>> "+this.jTextField_salida.getText());            
+            cliente.flujoSalida(4,nombre_archivo);
+            this.textPanelEdit_texto.append(Color.orange,"Yo("+dateFormat.format(cal.getTime())+")>> ");
+            this.textPanelEdit_texto.append(Color.black," subi el archivo "+nombre_archivo+"\n");            
+        
         this.jTextField_salida.requestFocus();
         
     }
@@ -277,6 +300,7 @@ public class VentanaCliente extends javax.swing.JFrame {
                     } 
                 }
             }.start();
+            
         }       
     }//GEN-LAST:event_jMenuItem_conectarActionPerformed
 
@@ -304,39 +328,45 @@ public class VentanaCliente extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         JFileChooser choice = new JFileChooser();
-        int option = choice.showOpenDialog(this);
-        File archivo = null;
+        int option = choice.showOpenDialog(this);        
         if (option == JFileChooser.APPROVE_OPTION) {
             archivo=choice.getSelectedFile();
-        }
         System.out.println("Es arxchivo: "+ archivo.exists());
         try {            
             ConexionFTP conexion=new ConexionFTP("1","1",host);
             if(!conexion.upFile(archivo)){
                 JOptionPane.showMessageDialog(this, "No se pudo subir el archivo","Error",JOptionPane.ERROR_MESSAGE);
             }else{
+                enviar(archivo.getName());
                 JOptionPane.showMessageDialog(this, "El archivo "+archivo.getName()+" se subio satisfactoriamente","Error",JOptionPane.INFORMATION_MESSAGE);
             }
+            
         } catch (SocketException ex) {
             Logger.getLogger(VentanaCliente.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
             Logger.getLogger(VentanaCliente.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
+        }
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
+        (new AcercaDe(this, false)).setVisible(true);
+    }//GEN-LAST:event_jMenuItem3ActionPerformed
 
     public void setPanelText(String texto, Color color){
         this.textPanelEdit_texto.append(color, texto);
     }
     
     public void setUsuarios(ArrayList<String> usuarios){
-        DefaultListModel<String> modelo=new DefaultListModel<String>();
-        for(String usuario:usuarios){
-            modelo.addElement(usuario);
+        if(usuarios!=null){
+            System.out.println("Se modificara Cliente con "+usuarios.toString());
+            DefaultListModel<String> modelo=new DefaultListModel<String>();
+            for(String usuario:usuarios){
+                modelo.addElement(usuario);
+            }
+            jList_usuariosConectados.setModel(modelo);
         }
-        jList_usuariosConectados.setModel(modelo);
-        //jList_usuariosConectados.setSelectedIndex(0);
-        //System.out.println(usuarios.toString());
-        //jList_usuariosConectados.updateUI();
     }
 
     public String getHost() {
@@ -394,6 +424,7 @@ public class VentanaCliente extends javax.swing.JFrame {
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem2;
+    private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem5;
     private javax.swing.JMenuItem jMenuItem_conectar;
     private javax.swing.JMenuItem jMenuItem_desconectar;
