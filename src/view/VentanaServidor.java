@@ -308,7 +308,7 @@ public class VentanaServidor extends javax.swing.JFrame {
                     "¿Desea eliminar el usuario "+jList_usuariosConectados.getSelectedValue()+" ?","Eliminar usuario",JOptionPane.YES_NO_CANCEL_OPTION);
             if(confirmacion==JOptionPane.OK_OPTION){
                 this.servidor.deleteUser(jList_usuariosConectados.getSelectedValue().toString());
-                JOptionPane.showMessageDialog(this, "SE eliomonpo");
+                JOptionPane.showMessageDialog(this, "Se eliminO el usuario","Usuario eliminado",JOptionPane.INFORMATION_MESSAGE);
             }
         }
     }//GEN-LAST:event_jButton1ActionPerformed
